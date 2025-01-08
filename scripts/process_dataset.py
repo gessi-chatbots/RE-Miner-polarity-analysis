@@ -30,6 +30,22 @@ def process_dataset(input_csv: str, output_json: str):
     with open(output_json, 'w', encoding='utf-8') as jsonfile:
         json.dump(output_data, jsonfile, indent=2)
 
+    # Print dataset statistics
+    total = len(reviews)
+    polarity_counts = {}
+
+    for review in reviews:
+        polarity = review['polarity']
+        polarity_counts[polarity] = polarity_counts.get(polarity, 0) + 1
+
+    print(f"\nDataset Statistics:")
+    print(f"Total reviews: {total}")
+    print("\nPolarity distribution:")
+    for polarity, count in polarity_counts.items():
+        percentage = (count / total) * 100
+        print(f"- {polarity}: {count} reviews ({percentage:.1f}%)")
+    print()
+
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python process_dataset.py <input_csv> <output_json>")
