@@ -1,1 +1,1 @@
-# REMiner-polarity-analysis
+# RE-Miner-polarity-analysis
