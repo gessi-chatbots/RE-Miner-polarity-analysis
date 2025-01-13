@@ -12,3 +12,5 @@ class PolarityRequest(BaseModel):
 class TrainModelRequest(BaseModel):
     reviews: List[ReviewItem]
 
+class SingleReviewRequest(BaseModel):
+    text: str

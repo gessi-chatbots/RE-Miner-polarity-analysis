@@ -1,9 +1,13 @@
 from fastapi import APIRouter, Query
-from models.models import PolarityRequest, TrainModelRequest
+from models.models import PolarityRequest, TrainModelRequest, SingleReviewRequest, ReviewItem
 from services.polarity_service_factory import PolarityServiceFactory
 from services.polarity_service import PolarityService
 from enums.service_enum import PolarityServiceType
 import logging
+from typing import Union
+from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -14,12 +18,19 @@ async def ping():
 
 @router.post("/analyze-polarity")
 async def analyze_polarity(
-    request: PolarityRequest,
+    request: Union[PolarityRequest, SingleReviewRequest],
     polarity_service: PolarityServiceType = Query(..., alias="polarity-service")
 ):
     service = PolarityServiceFactory.get_service(polarity_service.value)
-    analyzed_reviews = service.analyze_polarity(request.reviews)
-    return {"reviews": analyzed_reviews} 
+    
+    if isinstance(request, SingleReviewRequest):
+        reviews = [ReviewItem(reviewId="single", text=request.text)]
+        analyzed_reviews = service.analyze_polarity(reviews)
+        return {"reviewId": "single", "text": analyzed_reviews[0].text, "polarity": analyzed_reviews[0].polarity} 
+    else:
+        reviews = request.reviews
+        analyzed_reviews = service.analyze_polarity(reviews)
+        return {"reviews": analyzed_reviews} 
 
 @router.post("/train-model")
 async def train_model(
